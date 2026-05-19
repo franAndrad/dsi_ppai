@@ -1,0 +1,123 @@
+@startuml "Consultar seguimiento de bolsin"
+
+skinparam pageSize 420mm 297mm
+skinparam pageOrientation landscape
+skinparam dpi 150
+skinparam scale 0.55
+skinparam pageMargin 5
+
+skinparam ParticipantPadding 2
+skinparam BoxPadding 2
+skinparam Padding 1
+
+skinparam ranksep 10
+skinparam nodesep 5
+
+skinparam maxMessageSize 40
+skinparam sequenceMessageAlign left
+skinparam shadowing false
+
+hide footbox
+
+actor "Encargado de Bolsin" as EB
+boundary "Interfaz Bolsin" as IB
+control "Gestor Bolsin" as GB
+entity "Loguado:Usuario" as U
+entity "Logueado:Empleado" as LE
+entity "Obtenida:Comision Medica" as CM
+entity "Bolsin" as B
+entity "Cambio Estado" as CE
+entity "Estado" as E
+entity "Rol" as R
+entity "Empleado" as EMP
+
+
+create IB
+EB -->  IB : opcionConsultarUbicacion()
+
+IB -> IB : habilitarPantalla()
+
+create GB
+IB --> GB : consultarUbicacion()
+
+' Encontrar el empleado loguado
+entity "Actual:Sesion" as AS
+entity "Actual:Cambio Estado" as ACE
+GB -> GB : getEmpleadoLoguado()
+GB -> AS : getEmpleadoLoguado()
+AS -> U : getEmpleadoLogueado()
+
+' Buscamos la CM del empleado logueado
+GB -> GB : getCMEmpleado()
+GB -> LE : getCM()
+LE -> CM : getNombre()
+GB -> IB : mostrarCM()
+
+' Buscamos los Bolsines enviados
+GB -> GB : buscarBolsinesEnviadosEnCM()
+
+    loop mientras haya bolsines
+    GB -> B : esCMOrigenIgualCMEmpleado()
+    GB -> B : sosEnviado()
+    B -> B : buscarCambioEstadoActual()
+
+        loop mientras haya cambios de estado
+        B -> CE : sosActual()
+        end
+
+    B -> ACE : sosEnviado()
+    ACE -> E : esEnviado()
+    GB -> B : getNumero()
+    end
+
+' GPS
+boundary "Interfaz GPS" as IGPS
+actor "GPS Tracker" as AGPS
+GB --> IGPS : solicitarLocalizacion()
+    loop cada cierto tiempo
+    IGPS -> AGPS : getBolsinLocation()
+    end
+
+' Google Maps
+boundary "Interfaz Mapa" as IM
+actor "Google Maps" as AGM
+
+GB --> IM : solicitarMapa()
+IM -> AGM : solicitarMapa()
+GB -> IB : mostrarMapaPosicionBolsines()
+
+' Seleccion de tipo de busqueda
+GB -> GB : habilitarSeleccionBolsinMapa()
+GB -> IB : solicitarSeleccionBusqueda()
+EB -> IB : tomarSeleccionBusqueda()
+IB -> GB : tomarSeleccionBusqueda()
+
+' Seleccion del bolsin
+GB -> IB : solicitarSeleccionBolsinMapa()
+EB -> IB : tomarSeleccionBolsinMapa()
+IB -> GB : tomarSeleccionBolsinMapa()
+
+' Solicitud para enviar email
+GB -> IB : solicitarEnviarCorreo()
+EB -> IB : tomarConfirmacionEnviarCorreo()
+IB -> GB : tomarConfirmacionEnviarCorreo()
+
+
+' Buscar al mail del GCM 
+GB -> GB : buscarGCM()
+    loop
+    GB -> EMP : esTuCM()
+        loop
+        EMP -> R : sosGCM()
+        end
+    end
+
+Entity "GCM:Empleado" as GCME
+GB -> GCME : getEmail()
+
+' Llamar caso de uso 31.Notificar ubicacion de bolsin
+Entity "NotificarUbicacionBolsin:CU" as NUB
+GB --> NUB : include()
+
+GB -> IB : mostrarEjecucionExitosa()
+@enduml

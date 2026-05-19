@@ -1,0 +1,177 @@
+@startuml "Dominio bolsin"
+
+class ComisionMedica {
+    - nombre
+    - localidad: Localidad
+    + conocerLocalidad()
+}
+
+class Localidad {
+    - nombre
+    - provincia: Provincia
+    + conocerProvincia()
+}
+
+class Provincia {
+    - nombre
+    + new()
+    + mostrar()
+    + getNombre()
+    + setNombre()
+}
+
+note left of Provincia 
+    Los metodos de seteo se definen en
+    esta clase y son extensibles a las
+    demas clases del dominio.
+endnote
+
+ComisionMedica --> "1" Localidad
+Localidad --> "1" Provincia
+
+class Documento {
+    - numeroSecuencialUnico
+    - tipoDocumento: TipoDocumento
+    - fechaPase
+    - comisionMedicaOrigen
+    - archivo
+    + conocerTipoDocumento()
+}
+
+class TipoDocumento {
+    - nombre
+}
+
+class Archivo {
+    - nombre
+    - tipoArchivo: TipoArchivo
+    + conocerTipoArchivo()
+}
+
+class TipoArchivo {
+    - nombre
+}
+
+Documento --> "1" TipoDocumento
+Documento o--> "1..*" Archivo
+Archivo --> "1" TipoArchivo
+
+class Remito {
+    - fecha
+    - detalleRemito: DetalleRemito
+    - cambioEstadoRemito: CambioEstadoRemito
+    + conocerDetalleRemito()
+    + conocerCambioEstadoRemito()
+    + cancelar()
+    + validar()
+    + noValidar()
+}
+
+class DetalleRemito {
+    - documento: Documento
+    + conocerDocumento()
+}
+
+Remito o--> "1..*" DetalleRemito
+DetalleRemito --> "1" Documento 
+
+class Bolsin {
+    - numeroSecuencialUnico
+    - fechaGeneracion
+    - peso
+    - numeroPrecinto
+    - unidadMedidaPeso: UnidadMedidaPeso
+    - CMOrigen: ComisionMedica
+    - CMDestino: ComisionMedica
+    - remito: Remito
+    - cambioEstadoBolsin: CambioEstadoBolsin
+    + conocerRemito()
+    + conocerComisionMedica()
+    + conocerUnidadMedidaPeso()
+    + conocerCambioEstadoBolsin()
+    + modificar()
+    + enviar()
+    + recibir()
+    + validar()
+    + noValidar()
+}
+
+class UnidadMedidaPeso {
+    - nombre
+    - descripcion
+}
+
+Bolsin o--> "1..*" Remito
+Bolsin --> "1" ComisionMedica : Origen
+Bolsin --> "1" ComisionMedica : Destino
+Bolsin --> "1" UnidadMedidaPeso
+
+class CambioEstadoBolsin {
+    - fechaInicio
+    - fechaFin
+    - responsable: Empleado
+    - estado: Estado
+    + esActual()
+    + conocerEmpleado()
+    + conocerEstado()
+}
+
+class CambioEstadoRemito {
+    - fechaInicio
+    - fechaFin
+    - responsable: Empleado
+    - estado: Estado
+    + esActual()
+    + conocerEmpleado()
+    + conocerEstado()
+}
+
+class CambioEstadoDocumento {
+    - fechaInicio
+    - fechaFin
+    - responsable: Empleado
+    - estado: Estado
+    + conocerEmpleado()
+    + conocerEstado()
+    + esActual()
+}
+
+class Empleado {
+    - nombre
+    - rol: Rol
+    + conocerRol()
+    + sosTrabajadorCM()
+    + sosEB()
+}
+
+class Rol {
+    - nombre
+    + esEB()
+    + esTrabajadorCM()
+}
+
+class Estado {
+    - ambito
+    - nombre
+    + esAmbitoRemito()
+    + esAmbitoBolsin()
+    + esAmbitoDocumento()
+    + esEnviado()
+    + esRecibido()
+    + esValidado()
+    + esObservado()
+    + esCancelado()
+}
+
+Bolsin --> "1..*" CambioEstadoBolsin
+Remito --> "1..*" CambioEstadoRemito
+Documento --> "1..*" CambioEstadoDocumento
+CambioEstadoBolsin --> "1" Estado
+CambioEstadoRemito --> "1" Estado
+CambioEstadoDocumento --> "1" Estado
+CambioEstadoBolsin --> "1" Empleado
+CambioEstadoRemito --> "1" Empleado
+CambioEstadoDocumento --> "1" Empleado
+Empleado --> "1" Rol
+
+@enduml

@@ -1,0 +1,26 @@
+@startuml "Remito"
+
+hide empty description
+skinparam monochrome true
+skinparam shadowing false
+
+state Creado
+state EnBolsinSaliente
+state EnBolsinEnviado
+state RecibidoAceptado
+state RecibidoAceptadoParcial
+state Cancelado
+
+[*] --> Creado : crear()
+Creado --> EnBolsinSaliente : asociarRemito()
+Creado --> Creado : modificarRemito()
+EnBolsinSaliente --> Creado : eliminarRemitoBolsin()
+EnBolsinSaliente --> EnBolsinEnviado : registrarEnvioBolsin()
+EnBolsinEnviado --> RecibidoAceptado : recibirAceptar()
+EnBolsinEnviado --> RecibidoAceptadoParcial : recibirAceptarParcial()
+Creado --> Cancelado : cancelarRemito()
+Cancelado --> [*]
+RecibidoAceptado --> [*]
+RecibidoAceptadoParcial --> [*]
+
+@enduml

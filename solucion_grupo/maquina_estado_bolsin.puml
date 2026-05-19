@@ -1,0 +1,28 @@
+@startuml "Bolsin"
+
+hide empty description
+skinparam monochrome true
+skinparam shadowing false
+
+state EnArmado
+state Cerrado
+state Enviado
+state Recibido
+state DeBaja
+
+[*] --> EnArmado : crear()
+EnArmado --> Cerrado : registrarCierre()
+EnArmado --> EnArmado : modificarBolsin()
+Cerrado --> EnArmado : reabrirBolsin()
+Cerrado --> Enviado : registrarEnvioBolsin()
+EnArmado --> DeBaja : elimiarBolsin()
+Cerrado --> DeBaja : eliminarBolsin()
+Enviado --> Recibido : [esCMDestino()] \n / recibirBolsin()
+Recibido --> [*]
+DeBaja --> [*]
+
+note left of Recibido
+    Se debe hacer una validacion del precinto?
+endnote
+
+@enduml

@@ -1,0 +1,36 @@
+@startuml "Documentacion"
+
+hide empty description
+skinparam monochrome true
+skinparam shadowing false
+
+state Registrado
+state EnRemito
+state EnBolsinSaliente
+state EnBolsinEnviado
+state RecibidaAceptada
+state RecibidaRechazada
+state NoRecibida
+state ParaRedirigir
+state DeBaja
+
+[*] --> Registrado : crear()
+Registrado --> EnRemito : registrarEnRemito()
+EnRemito --> Registrado : cancelarRemito()
+EnRemito --> EnBolsinSaliente : registrarBolsin()
+EnBolsinSaliente --> EnRemito : modificarBolsin() 
+EnBolsinSaliente --> EnRemito : eliminarBolsin() 
+EnBolsinSaliente --> EnBolsinEnviado : registrarEnvioBolsin()
+EnBolsinEnviado --> RecibidaAceptada : [CM destino != CMC] \n / registrarRecepcionAceptada()
+EnBolsinEnviado --> ParaRedirigir : [CM destino == CMC] \n /registrarRecepcionParaRedirigir() 
+ParaRedirigir --> RecibidaAceptada : registrarRecepcionAceptada()
+ParaRedirigir --> RecibidaRechazada : registrarRecepcionRechazada()
+EnBolsinEnviado --> RecibidaRechazada : registrarRecepcionRechazada()
+RecibidaRechazada --> Registrado : enviarAlOrigen()
+EnBolsinEnviado --> NoRecibida : registrarNoRecepcion()
+NoRecibida --> Registrado : registrarDocumentacion()
+NoRecibida --> DeBaja : registrarBajaDocumentacion()
+RecibidaAceptada --> [*]
+DeBaja --> [*]
+
+@enduml

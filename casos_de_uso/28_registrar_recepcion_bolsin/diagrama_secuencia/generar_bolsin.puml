@@ -1,0 +1,127 @@
+@startuml "Registrar recepcion de bolsin"
+
+' skinparam pageSize 420mm 297mm
+' skinparam pageOrientation landscape
+' skinparam dpi 150
+' skinparam scale 0.55
+' skinparam pageMargin 5
+
+' skinparam ParticipantPadding 2
+' skinparam BoxPadding 2
+' skinparam Padding 1
+
+' skinparam ranksep 10
+' skinparam nodesep 5
+
+' skinparam maxMessageSize 40
+' skinparam sequenceMessageAlign left
+' skinparam shadowing false
+
+' hide footbox
+
+actor ":Encargado de bolsin" as EB
+boundary ":Interfaz recepcion bolsin" as IRB
+control ":Gestor bolsin" as GB
+
+' Paso 1
+create IRB
+EB --> IRB : opcionRegistrarRecepcion()
+
+IRB -> IRB : habilitarPantalla()
+
+create GB
+IRB -> GB : registrarRecepcion()
+
+'  Paso 2
+entity "Actual:Sesion" as ASE
+entity "Logueado:Usuario" as LU
+
+GB -> GB : getEmpleadoLogueado()
+GB -> ASE : getEmpleadoLogueado()
+ASE -> LU : getEmpleadoLogueado()
+
+entity "Logueado:Empleado" as LE
+GB -> GB : getCMEmpleado()
+GB -> LE : getCM()
+
+entity "Obtenida:Comision Medica" as CM
+LE -> CM : getNombre()
+
+GB -> IRB : mostrarNombreCM()
+
+' Paso 3
+entity "Bolsin" as B
+entity "Cambio Estado" as CE
+entity "Estado" as E
+GB -> GB : buscarBolsinCMyEnviado()
+loop
+    GB -> B : esCMOrigenIgualCM()
+    GB -> B : sosEnviado()
+
+    B -> B : buscarCambieEstadoActual()
+    loop
+        B -> CE : esActual()
+    end
+    entity "Actual:Cambio Estado" as ACE
+    B -> ACE : sosEnviado()
+    ACE -> E : esEnviado()
+
+' Paso 4
+    GB -> B : getNombreCMOrigen()
+    GB -> IRB : mostrarNombreCMOrigen()
+    GB -> B : getNumeroPrecinto()
+    GB -> IRB : mostrarNumeroPrecinto()
+end
+
+GB -> IRB : solicitarFormaBusqueda()
+EB -> IRB : tomarBusquedaSeleccion()
+IRB -> GB : tomarBusquedaSeleccion()
+
+GB -> IRB : solicitarSeleccionBolsin()
+IRB -> IRB : habilitarSeleccion()
+EB -> IRB : tomarSeleccionBolsin()
+IRB -> GB : tomarSeleccionBolsin()
+
+entity "Seleccionado:Bolsin" as SB
+
+' Paso 5
+entity ":Remito" as R
+entity ":Detalle remito" as DR
+entity ":Documentacion" as D
+
+GB -> GB : buscarNumerosAsuntosTipos()
+GB -> SB : buscarNumerosAsuntosTipos()
+loop
+    SB -> R : getNumero()
+    SB -> R : buscarAsuntosTipos()
+    loop
+        R -> DR : buscarAsuntoTipo()
+        DR -> D : getAsunto()
+        DR -> D : getTipoDocumentacion()
+    end
+end
+
+' Paso 6
+GB -> IRB : mostrarNumerosRemitos()
+GB -> IRB : mostrarAsuntosDocumentacionAsociada()
+GB -> IRB : mostrarTiposDocumentacionAsociada()
+
+' Paso 7
+GB -> IRB : mostrarOpcionesRecepcion()
+GB -> IRB : solicitaSeleccioneOpcion()
+
+' Paso 8
+EB -> IRB : tomarSeleccionContenidoIgualRegistrado()
+IRB -> GB : tomarSeleccionContenidoIgualRegistrado()
+
+' Paso 9
+GB -> IRB : solicitaSeleccionConfirmacion()
+
+' Paso 10
+EB -> IRB : tomarConfirmacion()
+IRB -> GB : tomarConfirmacion()
+
+
+
+
+@enduml
