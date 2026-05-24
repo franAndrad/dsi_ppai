@@ -1,28 +1,45 @@
 @startuml "Bolsin"
 
-hide empty description
-skinparam monochrome true
-skinparam shadowing false
+skinparam dpi 200
+skinparam backgroundColor #ffffff
+skinparam shadowing true
+skinparam roundcorner 20
+skinparam padding 20
+skinparam state {
+  BackgroundColor #eef5ff
+  BorderColor #5b7db1
+  ArrowColor #5b7db1
+  FontName Arial
+  FontSize 14
+  FontColor #102a43
+}
+skinparam ArrowFontName Arial
+skinparam ArrowFontSize 12
+skinparam note {
+  BackgroundColor #ffffff
+  BorderColor #5b7db1
+}
 
-state EnArmado
+scale 1.1
+
+hide empty description
+title Máquina de estados - Bolsin
+
+state Creado
 state Cerrado
 state Enviado
 state Recibido
 state DeBaja
 
-[*] --> EnArmado : crear()
-EnArmado --> Cerrado : registrarCierre()
-EnArmado --> EnArmado : modificarBolsin()
-Cerrado --> EnArmado : reabrirBolsin()
-Cerrado --> Enviado : registrarEnvioBolsin()
-EnArmado --> DeBaja : elimiarBolsin()
-Cerrado --> DeBaja : eliminarBolsin()
-Enviado --> Recibido : [esCMDestino()] \n / recibirBolsin()
+[*] --> Creado : 19. Generar Bolísn\nnew()
+Creado --> Cerrado : 39. Cerrar Bolísn\nregistrarCierre()
+Creado --> Creado : 20. Modificar Bolísn\nmodificarBolsin()
+Cerrado --> Creado : 40. Reabrir Bolísn\nreabrirBolsin()
+Cerrado --> Enviado : 27. Registrar el retiro de bolsines \nenviarBolsin()
+Creado --> DeBaja : 21. Eliminar Bolsín\ndarDeBaja()
+Cerrado --> DeBaja : 21. Eliminar Bolsín\ndarDeBaja()
+Enviado --> Recibido : 28. Registrar recepción de bolsín\nrecibirBolsin()
 Recibido --> [*]
 DeBaja --> [*]
-
-note left of Recibido
-    Se debe hacer una validacion del precinto?
-endnote
 
 @enduml
