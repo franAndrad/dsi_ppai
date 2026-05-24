@@ -1,0 +1,55 @@
+@startuml "Remito"
+
+skinparam dpi 200
+skinparam backgroundColor #ffffff
+skinparam shadowing true
+skinparam roundcorner 20
+skinparam padding 20
+skinparam state {
+  BackgroundColor #eef5ff
+  BorderColor #5b7db1
+  ArrowColor #5b7db1
+  FontName Arial
+  FontSize 14
+  FontColor #102a43
+}
+skinparam ArrowFontName Arial
+skinparam ArrowFontSize 12
+skinparam note {
+  BackgroundColor #ffffff
+  BorderColor #5b7db1
+}
+
+scale 1.1
+
+hide empty description
+title Máquina de estados - Remito
+
+state "Creado" as Creado
+state "En Bolsín Saliente" as EnBolsinSaliente
+state "En Bolsín Enviado" as EnBolsinEnviado
+state "Recibido Aceptado" as RecibidoAceptado
+state "Recibido Aceptado Parcial" as RecibidoAceptadoParcial
+state "Cancelado" as Cancelado
+
+[*] --> Creado : 19. Generar Bolsín\nnew()
+
+Creado --> EnBolsinSaliente : 19. Generar Bolsín\n20. Modificar Bolsín\nagregarRemito()
+
+Creado --> Creado : 16. Modificar Remito\nmodificarRemito()
+
+EnBolsinSaliente --> Creado : 20. Modificar Bolsín\n21. Eliminar Bolsín\nquitarRemito()
+
+EnBolsinSaliente --> EnBolsinEnviado : 27. Registrar el retiro de Bolsines\nenviar()
+
+EnBolsinEnviado --> RecibidoAceptado : 28. Registrar recepción de bolsín\n[y contenido bolsín = contenido registrado]\nrecibirYAceptar()
+
+EnBolsinEnviado --> RecibidoAceptadoParcial : 28. Registrar recepción de bolsín\n[y contenido bolsín != contenido registrado]\nrecibirYAceptarParcialmente()
+
+Creado --> Cancelado : 17. Cancelar Remito\ncancelarRemito()
+
+Cancelado --> [*]
+RecibidoAceptado --> [*]
+RecibidoAceptadoParcial --> [*]
+
+@enduml
