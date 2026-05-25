@@ -1,0 +1,30 @@
+# Salidas generadas (PlantUML → PNG/SVG/PDF)
+out/
+
+# IDE
+.idea/
+*.suo
+*.sln
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Node
+node_modules/
+
+# Compilados
+*.class
+*.jar
+*.exe
+*.dll
+*.so

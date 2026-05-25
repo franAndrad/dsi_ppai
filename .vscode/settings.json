@@ -1,0 +1,10 @@
+{
+  "plantuml.exportOutDir": "out",
+  "plantuml.exportFormat": "png",
+  "plantuml.diagramsExportSubFolder": true,
+  "plantuml.exportOnSave": true,
+  "plantuml.render": "PlantUMLServer",
+  "[plantuml]": {
+    "editor.suggest.showWords": false
+  }
+}
