@@ -5,6 +5,7 @@
 /otro
 
 # IDE
+.vscode/
 .idea/
 *.suo
 *.sln

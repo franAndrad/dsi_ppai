@@ -12,7 +12,6 @@ Modelado de un sistema de gestión de bolsines mediante diagramas UML.
 | `diagrama_clase/` | Diagramas de clase (PlantUML) |
 | `maquina_estado/` | Diagramas de máquina de estados (PlantUML) |
 | `documentacion/` | Documentación del proyecto (PDFs, ERS, consignas) |
-| `otro/` | Diagramas auxiliares |
 | `out/` | Salidas generadas (PNG/SVG/PDF) — ignoradas por git |
 
 ## Requisitos
