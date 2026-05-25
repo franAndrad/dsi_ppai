@@ -1,6 +1,9 @@
 # Salidas generadas (PlantUML → PNG/SVG/PDF)
 /out
 
+# Diagramas auxiliares
+/otro
+
 # IDE
 .idea/
 *.suo
