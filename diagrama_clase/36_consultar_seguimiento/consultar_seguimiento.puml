@@ -1,0 +1,153 @@
+@startuml "Consultar seguimiento"
+
+' --- Configuración visual para exportación a tamaño A3 (PNG de alta calidad y SVG) ---
+skinparam dpi 300
+skinparam nodesep 70
+skinparam ranksep 80
+skinparam linetype ortho
+skinparam roundcorner 8
+skinparam shadowing false
+
+' --- Estilos personalizados por estereotipo ---
+skinparam class {
+    ArrowColor #424242
+    FontSize 14
+    AttributeFontSize 12
+    MethodFontSize 12
+}
+skinparam class<<boundary>> {
+    BackgroundColor #E8F5E9
+    BorderColor #2E7D32
+}
+skinparam class<<control>> {
+    BackgroundColor #E3F2FD
+    BorderColor #1565C0
+}
+skinparam class<<entity>> {
+    BackgroundColor #FFF3E0
+    BorderColor #EF6C00
+}
+
+' --- Definición de Clases con sus respectivos estereotipos ---
+
+class GestorBolsin <<control>> {
+    - pantallaBolsin: PantallaBolsin
+    - actualSesion: Sesion
+    - empleados: Empleado
+    - empleadoLogueado: Empleado
+    - cmEmpleadoLogueado: ComisionMedica
+    - nombreCm
+    - numeroBolsin
+    - bolsines: Bolsines
+    - bolsinesEnviadoEnCM: Bolsines
+    - cmDestino
+    - ubicacionBolsin
+    - mapa
+    - cmGCM: ComisionMedica
+    - emailGCM
+    + consultarUbicacion()
+    + buscarEmpleadoLogueado()
+    + buscarCMEmpleadoLogueado()
+    + buscarBolsinesEnviadosEnCM()
+    + buscarDatosBolsines()
+    + buscarLocalizacion()
+    + buscarMapa()
+    + buscarGCM()
+    + buscarEmailGCM()
+    + tomarSeleccionBolsinMapa()
+    + tomarConfirmacionEnviarCorreo()
+    + finCU()
+}
+
+class PantallaBolsin <<boundary>> {
+    - gestorBolsin: GestorBolsin
+    - nombreCMEmpleado
+    - mapa
+    - bolsinSeleccionado
+    - confirmacionEnviarCorreo
+    + opcionConsultarUbicacion()
+    + habilitarPantalla()
+    + mostrarNombreCM()
+    + mostrarMapaPosiciones()
+    + habilitarFormasBusqueda()
+    + tomarSeleccionBolsinMapa()
+    + tomarConfirmacionEnviarCorreo()
+    + mostrarEjecucionExitosa()
+}
+
+class Sesion <<entity>> {
+   - fechaHoraInicio
+   - fechaHoraFin
+   - usuario: Usuario
+   + getUsuario()
+}
+
+class Empleado <<entity>> {
+    - apellido
+    - email
+    - nombre
+    - usuario: Usuario
+    - cm: ComisionMedica
+    + getEmail()
+    + sosGCM()
+    + esTuUsuario()
+    + getCM()
+}
+
+class ComisionMedica <<entity>> {
+    - codigo
+    - direccion
+    - email
+    - nombre
+    - telefono
+    + getNombre()
+}
+
+class Bolsin <<entity>> {
+    - fecha
+    - numeroBolsin
+    - numeroPrecinto
+    - peso
+    - cambioEstado: CambioEstado
+    + getNumeroBolsin()
+    + sosEnviado()
+    + buscarCambioEstadoActual()
+    + esCMOrigenIgualCMEmpleado()
+}
+
+class CambioEstado <<entity>> {
+    - fechaInicio
+    - fechaFin
+    - responsableCE: Empleado
+    - estado: Estado
+    + sosActual()
+    + sosEnviado()
+}
+
+class Estado <<entity>> {
+    - ambito
+    - nombre
+    - descripcion
+    + esEnviado()
+}
+
+class Rol <<entity>> {
+    - nombre
+    - descripcion
+    + esGCM()
+}
+
+' --- Relaciones ---
+
+GestorBolsin ..> "1" PantallaBolsin
+GestorBolsin ..> "1" Sesion
+GestorBolsin ..> "1..*" Empleado
+GestorBolsin ..> "1..*" Bolsin
+
+Bolsin -down-> "1..*" CambioEstado
+CambioEstado -right-> "1" Estado
+
+Empleado -down-> "1" ComisionMedica
+Empleado -left-> "1" Rol
+
+@enduml

@@ -20,104 +20,117 @@ skinparam shadowing false
 hide footbox
 
 actor "Encargado de Bolsin" as EB
-boundary "Interfaz Bolsin" as IB
+boundary "Pantalla Bolsin" as PSB
 control "Gestor Bolsin" as GB
-entity "Loguado:Usuario" as U
-entity "Logueado:Empleado" as LE
-entity "Obtenida:Comision Medica" as CM
-entity "Bolsin" as B
-entity "Cambio Estado" as CE
-entity "Estado" as E
-entity "Rol" as R
-entity "Empleado" as EMP
 
+create PSB
+EB -->  PSB : opcionConsultarUbicacion()
 
-create IB
-EB -->  IB : opcionConsultarUbicacion()
-
-IB -> IB : habilitarPantalla()
+PSB -> PSB : habilitarPantalla()
 
 create GB
-IB --> GB : consultarUbicacion()
+PSB --> GB : consultarUbicacion()
 
 ' Encontrar el empleado loguado
 entity "Actual:Sesion" as AS
-entity "Actual:Cambio Estado" as ACE
-GB -> GB : getEmpleadoLoguado()
-GB -> AS : getEmpleadoLoguado()
-AS -> U : getEmpleadoLogueado()
+entity ":Empleado" as EMP
+entity "Logueado:Empleado" as LE
+entity "ComisionMedica" as CM
+
+GB -> GB : buscarEmpleadoLogueado()
+GB -> AS : getUsuario()
+loop Mientras existan empleados
+    GB -> EMP : esTuUsuario()
+end
 
 ' Buscamos la CM del empleado logueado
-GB -> GB : getCMEmpleado()
+GB -> GB : buscarCMEmpleadoLogueado()
 GB -> LE : getCM()
 LE -> CM : getNombre()
-GB -> IB : mostrarCM()
+GB -> PSB : mostrarNombreCM()
 
 ' Buscamos los Bolsines enviados
+entity "Bolsin" as B
+entity "Cambio Estado" as CE
+entity "Actual:Cambio Estado" as ACE
+entity "Estado" as EST
+
 GB -> GB : buscarBolsinesEnviadosEnCM()
 
-    loop mientras haya bolsines
-    GB -> B : esCMOrigenIgualCMEmpleado()
-    GB -> B : sosEnviado()
-    B -> B : buscarCambioEstadoActual()
+loop mientras exista bolsines
+     GB -> B : esCMOrigenIgualCMEmpleado()
+     GB -> B : sosEnviado()
+     B -> B : buscarCambioEstadoActual()
 
-        loop mientras haya cambios de estado
-        B -> CE : sosActual()
+        loop mientras exista cambios de estado
+         B -> CE : sosActual()
         end
 
-    B -> ACE : sosEnviado()
-    ACE -> E : esEnviado()
-    GB -> B : getNumero()
-    end
+     B -> ACE : sosEnviado()
+     ACE -> EST : esEnviado()
+end
+
+GB -> GB : buscaDatosBolsines()
+loop mientras exista bolsines 
+    GB -> B : getNumeroBolsin()
+    GB -> B : getCMDestino()
+end
 
 ' GPS
 boundary "Interfaz GPS" as IGPS
 actor "GPS Tracker" as AGPS
+
+GB -> GB : buscarLocalizacion()
+create IGPS
 GB --> IGPS : solicitarLocalizacion()
-    loop cada cierto tiempo
-    IGPS -> AGPS : getBolsinLocation()
+    loop mientras existan bolsines
+        IGPS -> AGPS : getBolsinLocation()
     end
 
 ' Google Maps
+GB -> GB : buscarMapa()
 boundary "Interfaz Mapa" as IM
-actor "Google Maps" as AGM
+actor "Servidor Google Maps" as AGM
 
+create IM
 GB --> IM : solicitarMapa()
 IM -> AGM : solicitarMapa()
-GB -> IB : mostrarMapaPosicionBolsines()
+GB -> PSB : mostrarMapaPosicionBolsines()
 
 ' Seleccion de tipo de busqueda
-GB -> GB : habilitarSeleccionBolsinMapa()
-GB -> IB : solicitarSeleccionBusqueda()
-EB -> IB : tomarSeleccionBusqueda()
-IB -> GB : tomarSeleccionBusqueda()
+PSB -> PSB : habilitarFormasBusqueda()
+' GB -> PSB : solicitarSeleccionBusqueda()
+' EB -> PSB : tomarSeleccionBusqueda()
+' PSB -> GB : tomarSeleccionBusqueda()
 
-' Seleccion del bolsin
-GB -> IB : solicitarSeleccionBolsinMapa()
-EB -> IB : tomarSeleccionBolsinMapa()
-IB -> GB : tomarSeleccionBolsinMapa()
+' ' Seleccion del bolsin
+' GB -> IB : solicitarSeleccionBolsinMapa()
+EB -> PSB : tomarSeleccionBolsinMapa()
+PSB -> GB : tomarSeleccionBolsinMapa()
 
-' Solicitud para enviar email
-GB -> IB : solicitarEnviarCorreo()
-EB -> IB : tomarConfirmacionEnviarCorreo()
-IB -> GB : tomarConfirmacionEnviarCorreo()
+' ' Solicitud para enviar email
+GB -> PSB : solicitarConfirmacionEnviarCorreo()
+EB -> PSB : tomarConfirmacionEnviarCorreo()
+PSB -> GB : tomarConfirmacionEnviarCorreo()
 
 
-' Buscar al mail del GCM 
+' Buscar al mail del GCM
+entity ":Rol" as R
+entity "Gerente:Empleado"  as GE
 GB -> GB : buscarGCM()
-    loop
+    loop mientras existan empleados
     GB -> EMP : esTuCM()
-        loop
-        EMP -> R : sosGCM()
-        end
+    GB -> EMP : sosGCM()
+    EMP -> R : esGCM()
     end
 
-Entity "GCM:Empleado" as GCME
-GB -> GCME : getEmail()
+GB -> GB : buscarEmailGCM()
+GB -> GE : getEmail()
 
 ' Llamar caso de uso 31.Notificar ubicacion de bolsin
 Entity "NotificarUbicacionBolsin:CU" as NUB
 GB --> NUB : include()
 
-GB -> IB : mostrarEjecucionExitosa()
+GB -> PSB : mostrarEjecucionExitosa()
+GB -> GB : finCU()
 @enduml
