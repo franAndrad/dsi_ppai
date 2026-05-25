@@ -1,5 +1,5 @@
 # Salidas generadas (PlantUML → PNG/SVG/PDF)
-out/
+/out
 
 # IDE
 .idea/
